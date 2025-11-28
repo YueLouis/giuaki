@@ -1,214 +1,236 @@
-📱 EatAndOrder – Mobile Application (Android + Spring Boot API)
+# EatAndOrder – Mobile Application (Android + Java)
 
-Ứng dụng Android dành cho bài tập lớn môn lập trình di động.
-App kết nối với backend Spring Boot (shop-api) để thực hiện:
+Ứng dụng Android phục vụ bài tập lớn môn Lập trình Mobile.  
+App mô phỏng hệ thống đặt đồ ăn, với các chức năng:
 
-Đăng ký (OTP demo 6 số)
+- Đăng ký tài khoản (OTP 6 số – demo: 123456)
+- Đăng nhập bằng username/password
+- Lấy danh sách Category từ API
+- Lấy danh sách Product theo Category
+- Hiển thị thông tin người dùng sau khi đăng nhập
+- Điều hướng bằng Bottom Navigation
+- Kết nối trực tiếp với API Spring Boot: **shop-api**
 
-Đăng nhập bằng username/password
+---
 
-Lấy danh sách Categories
+# 1. Công nghệ sử dụng
 
-Lấy danh sách Product theo Category
+- **Android Studio Ladybug | Java**
+- **Retrofit2** – gọi API
+- **Gson** – parse JSON
+- **ViewBinding**
+- **RecyclerView**
+- **SharedPreferences** (lưu token + user info)
+- API server: **Spring Boot (shop-api)** chạy tại `http://10.0.2.2:8081/`
 
-Hiển thị thông tin người dùng sau khi đăng nhập
+---
 
-Điều hướng bằng Bottom Navigation
+# 2. Cấu trúc thư mục chính
 
-1. Công nghệ sử dụng
+```text
+EatAndOrder
+├── app
+│   ├── src/main/java/vn/hcmute/eatandorder
+│   │   ├── data
+│   │   │   ├── api
+│   │   │   │   ├── ApiService.java
+│   │   │   │   ├── RetrofitClient.java
+│   │   │   └── model
+│   │   │       ├── Category.java
+│   │   │       ├── Product.java
+│   │   │       ├── LoginRequest.java
+│   │   │       ├── LoginResponse.java
+│   │   │       └── RegisterRequest.java
+│   │   ├── ui
+│   │   │   ├── intro
+│   │   │   ├── login
+│   │   │   ├── register
+│   │   │   ├── otp
+│   │   │   ├── main
+│   │   │   │   ├── MainActivity.java
+│   │   │   │   ├── CategoryAdapter.java
+│   │   │   │   └── ProductAdapter.java
+│   │   │   └── profile
+│   │   └── util
+│   │       └── PrefManager.java
+│   ├── res/layout
+│   │   ├── activity_intro.xml
+│   │   ├── activity_login.xml
+│   │   ├── activity_register.xml
+│   │   ├── activity_otp.xml
+│   │   ├── activity_main.xml
+│   │   ├── item_category.xml
+│   │   └── item_product.xml
+│   └── AndroidManifest.xml
+└── README.md
+```
 
-Android Studio Giraffe / Ladybug
+---
 
-Java (hoặc Kotlin — nhóm dùng Java)
+# 3. Hướng dẫn cài đặt & chạy ứng dụng
 
-Retrofit2 + OkHttp – gọi API
+## 3.1. Clone project
+```
+git clone https://github.com/YueLouis/giuaki.git
+cd giuaki
+```
 
-Gson – parse JSON
+## 3.2. Cấu hình API base URL
 
-ViewBinding
+Trong RetrofitClient.java:
 
-RecyclerView – hiển thị danh sách
+```
+private static final String BASE_URL = "http://10.0.2.2:8081/";
+```
 
-Spring Boot shop-api chạy cổng 8081 – backend của dự án
+10.0.2.2 = địa chỉ truy cập localhost của máy thật từ Android Emulator.
 
-2. Cấu trúc project chính
-EatAndOrder/
-├── app/
-│   └── src/main/java/vn/hcmute/eatandorder
-│       ├── ui
-│       │   ├── intro
-│       │   ├── login
-│       │   ├── register
-│       │   ├── main
-│       │   └── product
-│       ├── data
-│       │   ├── api
-│       │   │   ├── ApiService.java
-│       │   │   ├── RetrofitClient.java
-│       │   └── model
-│       │       ├── Category.java
-│       │       └── Product.java
-│       └── util
-│           └── PrefManager.java
-│
-└── res/
-    ├── layout/
-    ├── drawable/
-    └── mipmap/
+## 3.3. Cấp quyền Internet
 
-3. Kết nối API (Retrofit)
+Trong AndroidManifest.xml:
 
-File cấu hình chính:
+```
+<uses-permission android:name="android.permission.INTERNET" />
 
-public class RetrofitClient {
-    private static final String BASE_URL = "http://10.0.2.2:8081/api/";
+<application
+    android:usesCleartextTraffic="true"
+    ... >
+```
 
-    private static Retrofit retrofit;
+## 3.4. Chạy app
 
-    public static ApiService getApiService() {
-        if (retrofit == null) {
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-        }
-        return retrofit.create(ApiService.class);
-    }
+Open project bằng Android Studio → chọn emulator → bấm Run ▶.
+
+Ứng dụng sẽ:
+
+Mở màn hình Intro → Login → nếu chưa có tài khoản → Register → OTP
+
+Sau khi Login thành công → chuyển sang MainActivity
+
+Gọi API để lấy Category & Product
+
+---
+
+# 4. Chức năng chính trong bài
+
+## 4.1. Đăng ký tài khoản (Register API)
+
+Body gửi đến API:
+
+{
+  "username": "tin123",
+  "password": "123456",
+  "otp": "123456"
 }
 
 
-Ghi chú:
+OTP demo cố định = 123456.
 
-10.0.2.2 = localhost của máy Windows khi chạy emulator
+## 4.2. Đăng nhập (Login API)
 
-shop-api phải chạy trước bằng Spring Boot
+Ví dụ body:
 
-4. Các màn hình chính
-4.1. Intro → Login → Register
-
-Nếu chưa có tài khoản → đi tới màn Register
-
-OTP demo: 123456
-
-Sau khi đăng ký thành công quay lại Login
-
-4.2. Trang Main
-
-Hiển thị lời chào người dùng
-
-Lấy danh sách category từ API
-
-Hiển thị ngang bằng RecyclerView
-
-4.3. Trang Product theo Category
-
-Gọi API:
-
-GET /api/categories/{id}/products
+{
+  "username": "tin123",
+  "password": "123456"
+}
 
 
-Hiển thị danh sách sản phẩm theo category.
+Nhận về token JWT → lưu SharedPreferences.
 
-4.4. Bottom Navigation
+## 4.3. Lấy danh sách Categories
+apiService.getCategories().enqueue(...)
 
-Có 3 tab (ví dụ):
+
+Hiển thị bằng RecyclerView dạng ngang.
+
+## 4.4. Lấy danh sách Product theo Category
+@GET("api/categories/{id}/products")
+Call<List<Product>> getProducts(@Path("id") int id);
+
+## 4.5. Hiển thị thông tin user sau đăng nhập
+
+Tên user được lấy từ LoginResponse và lưu bằng:
+
+PrefManager.saveUserName(...)
+
+## 4.6. Bottom Navigation
+
+Điều hướng:
 
 Home
 
+Orders (demo)
+
 Profile
 
-Settings
+---
 
-5. Giao tiếp API (ví dụ)
-Lấy toàn bộ Categories
-apiService.getCategories().enqueue(new Callback<List<Category>>() {
-    @Override
-    public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
-        List<Category> list = response.body();
-        adapter = new CategoryAdapter(list);
-        binding.rvCategory.setAdapter(adapter);
-    }
+# 5. API server yêu cầu để chạy app
 
-    @Override
-    public void onFailure(Call<List<Category>> call, Throwable t) {
-        Toast.makeText(MainActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
-    }
-});
+App cần backend chạy độc lập:
 
-6. Một số màn hình minh họa
+👉 Repo: https://github.com/YueLouis/shop-api
 
-(Em chỉ cần thêm folder docs/screenshots/ và bỏ ảnh vào)
-README tự hiển thị đẹp
+👉 Port backend: 8081
 
-![Login](docs/screenshots/login.png)
-![Register](docs/screenshots/register.png)
-![Main](docs/screenshots/main.png)
-![Category](docs/screenshots/category.png)
-![Product](docs/screenshots/product.png)
+Run backend bằng:
 
-7. Quy trình chạy project
-7.1. Chạy backend (shop-api)
-git clone https://github.com/YueLouis/shop-api.git
-cd shop-api
-./gradlew bootRun  # hoặc Run ShopApiApplication trong Android Studio
+gradlew bootRun
 
 
-Server chạy tại:
+Hoặc run class ShopApiApplication.java.
 
-http://localhost:8081/api
+# 6. Minh hoạ giao diện (thêm hình sau)
 
-7.2. Chạy app EatAndOrder
+```
+docs/screenshots/
+├── intro.png
+├── login.png
+├── register.png
+├── main_categories.png
+├── products_by_category.png
+└── profile.png
+```
 
-Mở thư mục EatAndOrder bằng Android Studio
+---
 
-Bật Internet permission
+# 7. Quy trình thực hiện bài (tóm tắt)
 
-<uses-permission android:name="android.permission.INTERNET" />
-<application android:usesCleartextTraffic="true">
+Thiết kế UI: Intro → Login → Register → OTP → Main
 
+Cài Retrofit + tạo RetrofitClient
 
-Run emulator
+Tạo ApiService → mapping các endpoint:
 
-Mở app
+```
+/auth/register
 
-Đăng ký → OTP 123456 → Đăng nhập → Main → Load category
+/auth/login
 
-8. Kết quả hoàn thành
+/api/categories
 
-Nhóm đã hoàn thiện các yêu cầu:
+/api/categories/{id}/products
+```
 
-✔ Intro → Login → Register + OTP
+Model hoá Category, Product, User
 
-✔ Đăng nhập username/password
+Hoàn thiện màn hình Main với RecyclerView
 
-✔ Trang Main hiển thị category
+Gọi API thật từ Spring Boot
 
-✔ Xem danh sách product theo category
+Lưu token, username vào SharedPreferences
 
-✔ Lấy API từ shop-api
+Hoàn thiện Bottom Navigation
 
-✔ Bottom navigation
+Kiểm thử toàn bộ flow → chụp screenshot → đưa vào README
 
-✔ Lưu trạng thái user bằng SharedPreferences
+---
 
-✔ Up 2 repo GitHub riêng:
+# 8. Ghi chú
 
-Backend: https://github.com/YueLouis/shop-api
+App chỉ chạy với backend shop-api chạy tại 10.0.2.2:8081.
 
-Mobile: https://github.com/YueLouis/giuaki
+Vì dùng H2 database nên backend reset dữ liệu mỗi lần restart.
 
-9. Ghi chú
-
-Nếu emulator không kết nối API → kiểm tra:
-
-Backend có chạy chưa?
-
-Base URL có đúng 10.0.2.2 chưa?
-
-Có bật usesCleartextTraffic chưa?
-
-Nếu đổi wifi / IP → backend phải chạy lại đúng cổng 8081.
-
-10. License
-
-MIT License – dùng cho mục đích học tập.
+Các API trong bài được đơn giản hoá phục vụ mục tiêu demo.
