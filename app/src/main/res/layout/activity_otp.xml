@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvOtpTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Nhập mã OTP"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/tvOtpHint"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Nhập mã 6 số (mặc định: 123456)"
+        app:layout_constraintTop_toBottomOf="@id/tvOtpTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <EditText
+        android:id="@+id/edtOtp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="OTP"
+        android:inputType="number"
+        android:maxLength="6"
+        app:layout_constraintTop_toBottomOf="@id/tvOtpHint"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"/>
+
+    <Button
+        android:id="@+id/btnConfirmOtp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Xác nhận"
+        app:layout_constraintTop_toBottomOf="@id/edtOtp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
