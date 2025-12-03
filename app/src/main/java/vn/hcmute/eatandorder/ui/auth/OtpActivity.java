@@ -2,13 +2,15 @@ package vn.hcmute.eatandorder.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import okhttp3.ResponseBody;
+import java.io.IOException;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,12 +42,7 @@ public class OtpActivity extends AppCompatActivity {
         email = intent.getStringExtra("email");
         phone = intent.getStringExtra("phone");
 
-        binding.btnConfirmOtp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                confirmOtpAndRegister();
-            }
-        });
+        binding.btnConfirmOtp.setOnClickListener(v -> confirmOtpAndRegister());
     }
 
     private void confirmOtpAndRegister() {
@@ -61,14 +58,13 @@ public class OtpActivity extends AppCompatActivity {
                 username, password, fullName, email, phone
         );
 
-        Call<ResponseBody> call = apiService.register(request);
-        call.enqueue(new Callback<ResponseBody>() {
+        Call<String> call = apiService.register(request);
+        call.enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<ResponseBody> call,
-                                   Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(OtpActivity.this,
-                            "Đăng ký thành công, mời đăng nhập",
+                            response.body(),
                             Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(OtpActivity.this, LoginActivity.class);
@@ -79,28 +75,30 @@ public class OtpActivity extends AppCompatActivity {
                 } else {
                     int code = response.code();
                     String errorBody = "";
-                    try {
-                        if (response.errorBody() != null) {
+                    if (response.errorBody() != null) {
+                        try {
                             errorBody = response.errorBody().string();
+                        } catch (IOException e) {
+                            Log.e("API_REGISTER", "Error parsing error body", e);
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
 
-                    android.util.Log.e("API_REGISTER",
+                    String errorMessage = errorBody.isEmpty() ? "Đăng ký thất bại. Mã lỗi: " + code : errorBody;
+                    Log.e("API_REGISTER",
                             "code = " + code + ", error = " + errorBody);
 
                     Toast.makeText(OtpActivity.this,
-                            "Đăng ký thất bại. Mã lỗi: " + code,
+                            errorMessage,
                             Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 Toast.makeText(OtpActivity.this,
                         "Lỗi kết nối: " + t.getMessage(),
                         Toast.LENGTH_SHORT).show();
+                Log.e("API_REGISTER", "Failure: " + t.getMessage(), t);
             }
         });
     }

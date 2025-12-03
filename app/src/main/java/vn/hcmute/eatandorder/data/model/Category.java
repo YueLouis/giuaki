@@ -38,6 +38,10 @@ public class Category {
         return image;
     }
 
+    public String getImageUrl() {
+        return image; // Trả về giá trị của trường 'image'
+    }
+
     public String getDescription() {
         return description;
     }

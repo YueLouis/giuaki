@@ -3,10 +3,13 @@ package vn.hcmute.eatandorder.ui.product;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -32,7 +35,15 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Category c = list.get(position);
-        holder.txtName.setText(c.getName());
+        if (c != null) {
+            holder.tvCategoryName.setText(c.getName());
+
+            Glide.with(holder.itemView.getContext())
+                    .load(c.getImageUrl())
+                    .placeholder(R.mipmap.ic_launcher) // Ảnh hiển thị trong lúc tải
+                    .error(R.mipmap.ic_launcher_round) // Ảnh hiển thị nếu có lỗi
+                    .into(holder.ivCategoryImage);
+        }
     }
 
     @Override
@@ -41,11 +52,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView txtName;
+        ImageView ivCategoryImage;
+        TextView tvCategoryName;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtName = itemView.findViewById(R.id.txtCategoryName);
+            ivCategoryImage = itemView.findViewById(R.id.ivCategoryImage);
+            tvCategoryName = itemView.findViewById(R.id.tvCategoryName);
         }
     }
 }

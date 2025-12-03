@@ -7,8 +7,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
 
-    // Nếu backend chạy ở localhost:8080, emulator phải dùng 10.0.2.2
-    private static final String BASE_URL = "http://10.0.2.2:8081/";
+    private static final String BASE_URL = "http://10.0.2.2:8080/api/";
+
     private static Retrofit retrofit;
 
     public static ApiService getApiService() {
@@ -27,7 +27,6 @@ public class RetrofitClient {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
-
         return retrofit.create(ApiService.class);
     }
 }
