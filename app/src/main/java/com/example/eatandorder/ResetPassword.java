@@ -60,6 +60,7 @@ public class ResetPassword extends AppCompatActivity {
 
                 if (response.isSuccessful()) {
                     Toast.makeText(ResetPassword.this, "Đặt lại mật khẩu thành công!", Toast.LENGTH_SHORT).show();
+                    finish();
                 } else {
                     Toast.makeText(ResetPassword.this, "OTP sai hoặc đã hết hạn!", Toast.LENGTH_SHORT).show();
                 }
