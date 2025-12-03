@@ -28,19 +28,15 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Ánh xạ view
         edtUsername = findViewById(R.id.edtUsername);
         edtPassword = findViewById(R.id.edtPassword);
         btnLogin = findViewById(R.id.btnLogin);
 
-        // SharedPreferences để lưu token
         sp = getSharedPreferences("APP_PREF", MODE_PRIVATE);
 
-        // Retrofit
         Retrofit retrofit = ApiClient.getClient();
         apiService = retrofit.create(ApiService.class);
 
-        // Sự kiện login
         btnLogin.setOnClickListener(view -> loginUser());
     }
 
@@ -48,7 +44,6 @@ public class LoginActivity extends AppCompatActivity {
         String username = edtUsername.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
-        // Kiểm tra input
         if (TextUtils.isEmpty(username)) {
             edtUsername.setError("Vui lòng nhập username");
             return;
@@ -58,7 +53,6 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // API login
         Call<LoginResponse> call = apiService.login(username, password);
         call.enqueue(new Callback<LoginResponse>() {
             @Override
@@ -66,12 +60,10 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     String token = response.body().getToken();
 
-                    // Lưu token để dùng cho các API khác
                     sp.edit().putString("TOKEN", token).apply();
 
                     Toast.makeText(LoginActivity.this, "Login thành công!", Toast.LENGTH_SHORT).show();
 
-                    // Chuyển sang MainActivity
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
