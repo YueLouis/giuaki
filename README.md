@@ -23,7 +23,7 @@ Dưới đây là giao diện (UI) nhóm đã xây dựng:
 ---
 
 🖼️ 4. Màn hình Home
-<img src="docs/screenshots/home_top.png.png" width="320"> <br> <img src="screenshots/home_categories.png" width="320">
+<img src="docs/screenshots/home_top.png.png" width="320">
 
 ---
 
