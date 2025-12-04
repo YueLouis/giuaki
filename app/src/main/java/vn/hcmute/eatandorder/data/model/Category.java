@@ -10,8 +10,9 @@ public class Category {
     @SerializedName("name")
     private String name;
 
-    @SerializedName("image")
-    private String image;
+    // API trả về "imageUrl" (camelCase) không phải "image_url" (snake_case)
+    @SerializedName("imageUrl")
+    private String imageUrl;
 
     @SerializedName("description")
     private String description;
@@ -19,10 +20,10 @@ public class Category {
     public Category() {
     }
 
-    public Category(int id, String name, String image, String description) {
+    public Category(int id, String name, String imageUrl, String description) {
         this.id = id;
         this.name = name;
-        this.image = image;
+        this.imageUrl = imageUrl;
         this.description = description;
     }
 
@@ -34,12 +35,13 @@ public class Category {
         return name;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public String getImageUrl() {
-        return image; // Trả về giá trị của trường 'image'
+    // Giữ method getImage() để tương thích
+    public String getImage() {
+        return imageUrl;
     }
 
     public String getDescription() {
@@ -54,8 +56,12 @@ public class Category {
         this.name = name;
     }
 
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public void setImage(String image) {
-        this.image = image;
+        this.imageUrl = image;
     }
 
     public void setDescription(String description) {
@@ -67,7 +73,7 @@ public class Category {
         return "Category{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", image='" + image + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", description='" + description + '\'' +
                 '}';
     }

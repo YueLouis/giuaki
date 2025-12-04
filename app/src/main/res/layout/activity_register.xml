@@ -4,80 +4,90 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp">
+    android:background="#ECD5BC">
 
-    <TextView
-        android:id="@+id/tvRegisterTitle"
-        android:layout_width="0dp"
+    <!-- Khung trắng bo tròn để giống trang Login -->
+    <LinearLayout
+        android:id="@+id/containerRegister"
+        android:layout_width="361dp"
         android:layout_height="wrap_content"
-        android:text="Đăng ký"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:background="@drawable/bg_white_rounded"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <EditText
-        android:id="@+id/edtFullName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Họ tên"
-        app:layout_constraintTop_toBottomOf="@id/tvRegisterTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        <TextView
+            android:id="@+id/tvRegisterTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Đăng ký"
+            android:textColor="#DA8359"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/edtUsernameReg"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Username"
-        app:layout_constraintTop_toBottomOf="@id/edtFullName"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/edtFullName"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/edittext_rounded"
+            android:gravity="center"
+            android:hint="Họ tên"/>
 
-    <EditText
-        android:id="@+id/edtPasswordReg"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"
-        app:layout_constraintTop_toBottomOf="@id/edtUsernameReg"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/edtUsernameReg"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_rounded"
+            android:gravity="center"
+            android:hint="Username"/>
 
-    <EditText
-        android:id="@+id/edtEmail"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        app:layout_constraintTop_toBottomOf="@id/edtPasswordReg"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/edtPasswordReg"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_rounded"
+            android:gravity="center"
+            android:hint="Password"
+            android:inputType="textPassword"/>
 
-    <EditText
-        android:id="@+id/edtPhone"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Số điện thoại"
-        android:inputType="phone"
-        app:layout_constraintTop_toBottomOf="@id/edtEmail"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/edtEmail"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_rounded"
+            android:gravity="center"
+            android:hint="Email"
+            android:inputType="textEmailAddress"/>
 
-    <Button
-        android:id="@+id/btnNextOtp"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Tiếp tục"
-        app:layout_constraintTop_toBottomOf="@id/edtPhone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp"/>
+        <EditText
+            android:id="@+id/edtPhone"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_rounded"
+            android:gravity="center"
+            android:hint="Số điện thoại"
+            android:inputType="phone"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnNextOtp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/btn_rounded"
+            android:text="Tiếp tục"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

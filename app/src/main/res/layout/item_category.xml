@@ -8,21 +8,23 @@
     app:cardElevation="3dp">
 
     <LinearLayout
+        android:id="@+id/layoutCategory"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:background="@drawable/category_background">
 
         <ImageView
-            android:id="@+id/ivCategoryImage"
+            android:id="@+id/imgCategory"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:scaleType="centerCrop"
             android:src="@mipmap/ic_launcher" />
 
         <TextView
-            android:id="@+id/tvCategoryName"
+            android:id="@+id/txtCategoryName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
