@@ -2,104 +2,74 @@ package vn.hcmute.eatandorder.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.io.IOException;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import vn.hcmute.eatandorder.data.api.ApiService;
-import vn.hcmute.eatandorder.data.api.RetrofitClient;
-import vn.hcmute.eatandorder.data.model.RegisterRequest;
-import vn.hcmute.eatandorder.databinding.ActivityOtpBinding;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import vn.hcmute.eatandorder.R;
 
 public class OtpActivity extends AppCompatActivity {
-
-    private ActivityOtpBinding binding;
-    private ApiService apiService;
-
-    private String username, password, fullName, email, phone;
-
+    private EditText edtOtp;
+    private String usernameReceived;
+    private static final String DB_URL = "jdbc:mysql://192.168.149.80:3306/eatorder";
+    private static final String DB_USER = "admin";
+    private static final String DB_PASS = "123";
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityOtpBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        apiService = RetrofitClient.getApiService();
-
-        // Lấy data từ RegisterActivity
-        Intent intent = getIntent();
-        username = intent.getStringExtra("username");
-        password = intent.getStringExtra("password");
-        fullName = intent.getStringExtra("fullName");
-        email = intent.getStringExtra("email");
-        phone = intent.getStringExtra("phone");
-
-        binding.btnConfirmOtp.setOnClickListener(v -> confirmOtpAndRegister());
+        setContentView(R.layout.activity_otp);
+        edtOtp = findViewById(R.id.edtOtp);
+        Button btnVerify = findViewById(R.id.btnVerifyOtp);
+        usernameReceived = getIntent().getStringExtra("KEY_USERNAME");
+        btnVerify.setOnClickListener(v -> verifyOtp());
     }
-
-    private void confirmOtpAndRegister() {
-        String otp = binding.edtOtp.getText().toString().trim();
-
-        // OTP demo: 123456
-        if (!"123456".equals(otp)) {
-            Toast.makeText(this, "OTP không đúng, thử lại 123456", Toast.LENGTH_SHORT).show();
+    private void verifyOtp() {
+        String otpInput = edtOtp.getText().toString().trim();
+        if (otpInput.length() < 6) {
+            Toast.makeText(this, "OTP phải 6 số", Toast.LENGTH_SHORT).show();
             return;
         }
+        new Thread(() -> {
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+                String sql = "SELECT otp_code, otp_expiry FROM users WHERE username = ?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, usernameReceived);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    String dbOtp = rs.getString("otp_code");
+                    long expiry = rs.getLong("otp_expiry");
 
-        RegisterRequest request = new RegisterRequest(
-                username, password, fullName, email, phone
-        );
-
-        Call<String> call = apiService.register(request);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(OtpActivity.this,
-                            response.body(),
-                            Toast.LENGTH_SHORT).show();
-
-                    Intent intent = new Intent(OtpActivity.this, LoginActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                            Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    int code = response.code();
-                    String errorBody = "";
-                    if (response.errorBody() != null) {
-                        try {
-                            errorBody = response.errorBody().string();
-                        } catch (IOException e) {
-                            Log.e("API_REGISTER", "Error parsing error body", e);
-                        }
+                    if (!otpInput.equals(dbOtp)) {
+                        runOnUiThread(() -> Toast.makeText(this, "Sai mã OTP!", Toast.LENGTH_SHORT).show());
                     }
-
-                    String errorMessage = errorBody.isEmpty() ? "Đăng ký thất bại. Mã lỗi: " + code : errorBody;
-                    Log.e("API_REGISTER",
-                            "code = " + code + ", error = " + errorBody);
-
-                    Toast.makeText(OtpActivity.this,
-                            errorMessage,
-                            Toast.LENGTH_SHORT).show();
+                    else if (System.currentTimeMillis() > expiry) {
+                        runOnUiThread(() -> Toast.makeText(this, "OTP hết hạn!", Toast.LENGTH_SHORT).show());
+                    }
+                    else {
+                        String updateSql = "UPDATE users SET is_active = 1, otp_code = NULL WHERE username = ?";
+                        PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+                        updateStmt.setString(1, usernameReceived);
+                        updateStmt.executeUpdate();
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "Kích hoạt thành công!", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(OtpActivity.this, LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        });
+                    }
                 }
+                conn.close();
             }
-
-            @Override
-            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                Toast.makeText(OtpActivity.this,
-                        "Lỗi kết nối: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-                Log.e("API_REGISTER", "Failure: " + t.getMessage(), t);
+            catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this, "Lỗi DB: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
-        });
+        }).start();
     }
 }

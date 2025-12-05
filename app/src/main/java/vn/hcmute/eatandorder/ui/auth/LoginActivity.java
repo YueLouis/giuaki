@@ -2,92 +2,70 @@ package vn.hcmute.eatandorder.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.io.IOException;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import vn.hcmute.eatandorder.MainActivity;
-import vn.hcmute.eatandorder.data.api.ApiService;
-import vn.hcmute.eatandorder.data.api.RetrofitClient;
-import vn.hcmute.eatandorder.data.model.AuthResponse;
-import vn.hcmute.eatandorder.data.model.LoginRequest;
-import vn.hcmute.eatandorder.databinding.ActivityLoginBinding;
-import vn.hcmute.eatandorder.util.PrefManager;
+import vn.hcmute.eatandorder.R;
 
 public class LoginActivity extends AppCompatActivity {
-
-    private ActivityLoginBinding binding;
-    private ApiService apiService;
-    private PrefManager pref;
-
+    private EditText edtUser, edtPass;
+    private Button btnLogin;
+    private TextView tvGoToRegister;
+    private static final String DB_URL = "jdbc:mysql://192.168.149.80:3306/eatorder";
+    private static final String DB_USER = "admin";
+    private static final String DB_PASS = "123";
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityLoginBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        apiService = RetrofitClient.getApiService();
-        pref = new PrefManager(this);
-
-        binding.btnLogin.setOnClickListener(v -> doLogin());
-
-        binding.tvRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(intent);
+        setContentView(R.layout.activity_login);
+        edtUser = findViewById(R.id.edtLoginUser);
+        edtPass = findViewById(R.id.edtLoginPass);
+        btnLogin = findViewById(R.id.btnLogin);
+        tvGoToRegister = findViewById(R.id.tvGoToRegister);
+        btnLogin.setOnClickListener(v -> checkLogin());
+        tvGoToRegister.setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
         });
-
     }
-
-    private void doLogin() {
-        String username = binding.edtUsername.getText().toString().trim();
-        String password = binding.edtPassword.getText().toString().trim();
-
-        if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Nhập đầy đủ username và password", Toast.LENGTH_SHORT).show();
+    private void checkLogin() {
+        String u = edtUser.getText().toString().trim();
+        String p = edtPass.getText().toString().trim();
+        if (u.isEmpty() || p.isEmpty()) {
+            Toast.makeText(this, "Nhập đủ thông tin!", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        LoginRequest request = new LoginRequest(username, password);
-        Call<AuthResponse> call = apiService.login(request);
-
-        call.enqueue(new Callback<AuthResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<AuthResponse> call, @NonNull Response<AuthResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    AuthResponse auth = response.body();
-                    pref.saveUser(auth);
-
-                    Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
-                } else {
-                    int code = response.code();
-                    String errorBody = "";
-                    if (response.errorBody() != null) {
-                        try {
-                            errorBody = response.errorBody().string();
-                        } catch (IOException e) {
-                            Log.e("API_LOGIN", "Error parsing error body", e);
-                        }
-                    }
-                    Log.e("API_LOGIN", "code = " + code + ", error = " + errorBody);
-                    Toast.makeText(LoginActivity.this, "Sai tài khoản hoặc mật khẩu. Mã lỗi: " + code, Toast.LENGTH_SHORT).show();
+        new Thread(() -> {
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+                String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND is_active = 1";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, u);
+                stmt.setString(2, p);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
                 }
+                else {
+                    runOnUiThread(() -> Toast.makeText(this, "Sai tài khoản hoặc chưa kích hoạt!", Toast.LENGTH_LONG).show());
+                }
+                conn.close();
             }
-
-            @Override
-            public void onFailure(@NonNull Call<AuthResponse> call, @NonNull Throwable t) {
-                Log.e("API_LOGIN", "Failure: " + t.getMessage(), t);
-                Toast.makeText(LoginActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this, "Lỗi kết nối: " + e.getMessage(), Toast.LENGTH_LONG).show());
             }
-        });
+        }).start();
     }
 }
